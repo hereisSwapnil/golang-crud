@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/hereisSwapnil/golang-crud/internal/config"
+	"github.com/hereisSwapnil/golang-crud/internal/types"
+
 	// as we are just using sqlite3, we need to import it not directly using it
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -37,9 +39,53 @@ func New(config *config.Config)(*Sqlite, error){
 }
 
 func (s *Sqlite) CreateStudent(name string, age int, email string) (int64, error) {
-	result, err := s.Db.Exec("INSERT INTO students (name, age, email) VALUES (?, ?, ?)", name, age, email)
+	stmt, err := s.Db.Prepare("INSERT INTO students (name, age, email) VALUES (?, ?, ?)")
 	if err != nil {
-		return 0, fmt.Errorf("failed to create student: %v", err)
+		return 0, fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+	result, err := stmt.Exec(name, age, email)
+	if err != nil {
+		return 0, fmt.Errorf("failed to execute statement: %v", err)
 	}
 	return result.LastInsertId()
+}
+
+func (s *Sqlite) GetStudent(id int) (types.Student, error) {
+	stmt, err := s.Db.Prepare("SELECT * FROM students WHERE id = ?")
+	if err != nil {
+		return types.Student{}, fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+
+	var student types.Student
+
+	err = stmt.QueryRow(id).Scan(&student.Id, &student.Name, &student.Age, &student.Email)
+	if err != nil {
+		return types.Student{}, fmt.Errorf("failed to query row: %v", err)
+	}
+	return student, nil
+}
+
+func (s *Sqlite) GetAllStudents() ([]types.Student, error) {
+	stmt, err := s.Db.Prepare("SELECT * FROM students")
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		return nil, fmt.Errorf("failed to query statement: %v", err)
+	}
+	defer rows.Close()
+	var students []types.Student
+	for rows.Next() {
+		var student types.Student
+		err = rows.Scan(&student.Id, &student.Name, &student.Age, &student.Email)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan student: %v", err)
+		}
+		students = append(students, student)
+	}
+	return students, nil
 }
