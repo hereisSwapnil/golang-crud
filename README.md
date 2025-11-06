@@ -8,6 +8,8 @@ This API lets you:
 - Create a new student
 - Get a student by ID
 - Get all students
+- Update a student
+- Delete a student
 
 ## Prerequisites
 
@@ -111,6 +113,38 @@ golang-crud/
   }
   ```
 
+### Update Student
+- **PUT** `/api/v1/student/{id}`
+- **Request Body**:
+  ```json
+  {
+    "name": "Jane Doe",
+    "age": 21,
+    "email": "jane@example.com"
+  }
+  ```
+- **Success Response** (200):
+  ```json
+  {
+    "status": 200,
+    "data": {
+      "id": 1
+    }
+  }
+  ```
+
+### Delete Student
+- **DELETE** `/api/v1/student/{id}`
+- **Success Response** (200):
+  ```json
+  {
+    "status": 200,
+    "data": {
+      "id": 1
+    }
+  }
+  ```
+
 ## Response Formats
 
 ### Success Response
@@ -159,6 +193,18 @@ curl http://localhost:8082/api/v1/student/1
 **Get all students:**
 ```bash
 curl http://localhost:8082/api/v1/students
+```
+
+**Update a student:**
+```bash
+curl -X PUT http://localhost:8082/api/v1/student/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Jane Doe", "age": 21, "email": "jane@example.com"}'
+```
+
+**Delete a student:**
+```bash
+curl -X DELETE http://localhost:8082/api/v1/student/1
 ```
 
 ## Packages Used
