@@ -33,6 +33,8 @@ func main() {
 	router.Handle("POST /api/v1/student", student.New(storage))
 	router.Handle("GET /api/v1/student/{id}", student.Get(storage))
 	router.Handle("GET /api/v1/students", student.GetAll(storage))
+	router.Handle("PUT /api/v1/student/{id}", student.Update(storage))
+	router.Handle("DELETE /api/v1/student/{id}", student.Delete(storage))
 
 	server := &http.Server{
 		Addr:    config.HttpServer.Address,

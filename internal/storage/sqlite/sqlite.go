@@ -89,3 +89,29 @@ func (s *Sqlite) GetAllStudents() ([]types.Student, error) {
 	}
 	return students, nil
 }
+
+func (s *Sqlite) UpdateStudent(id int, name string, age int, email string) error {
+	stmt, err := s.Db.Prepare("UPDATE students SET name = ?, age = ?, email = ? WHERE id = ?")
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(name, age, email, id)
+	if err != nil {
+		return fmt.Errorf("failed to execute statement: %v", err)
+	}
+	return nil
+}
+
+func (s *Sqlite) DeleteStudent(id int) error {
+	stmt, err := s.Db.Prepare("DELETE FROM students WHERE id = ?")
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return fmt.Errorf("failed to execute statement: %v", err)
+	}
+	return nil
+}

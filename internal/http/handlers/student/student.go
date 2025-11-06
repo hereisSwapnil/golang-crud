@@ -67,3 +67,51 @@ func GetAll(storage storage.Storage) http.HandlerFunc {
 		response.SendResponse(w, http.StatusOK, students)
 	}
 }
+
+func Update(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			response.SendError(w, http.StatusBadRequest, "Invalid student ID")
+			return
+		}
+		var student types.Student
+		err = json.NewDecoder(r.Body).Decode(&student)
+		if err != nil {
+			response.SendError(w, http.StatusBadRequest, "Failed to decode student data")
+			return
+		}
+		if err := validator.New().Struct(student); err != nil {
+			response.SendValidationErrorResponse(w, err.(validator.ValidationErrors))
+			return
+		}
+		err = storage.UpdateStudent(idInt, student.Name, student.Age, student.Email)
+		if err != nil {
+			response.SendError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to update student: %v", err))
+			return
+		}
+		response.SendResponse(w, http.StatusOK, map[string]interface{}{
+			"id": idInt,
+		})
+	}
+}
+
+func Delete(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			response.SendError(w, http.StatusBadRequest, "Invalid student ID")
+			return
+		}
+		err = storage.DeleteStudent(idInt)
+		if err != nil {
+			response.SendError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to delete student: %v", err))
+			return
+		}
+		response.SendResponse(w, http.StatusOK, map[string]interface{}{
+			"id": idInt,
+		})
+	}
+}
