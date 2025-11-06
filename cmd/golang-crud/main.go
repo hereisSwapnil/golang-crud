@@ -12,6 +12,7 @@ import (
 
 	"github.com/hereisSwapnil/golang-crud/internal/config"
 	"github.com/hereisSwapnil/golang-crud/internal/http/handlers/student"
+	"github.com/hereisSwapnil/golang-crud/internal/storage/sqlite"
 )
 
 func main() {
@@ -20,11 +21,16 @@ func main() {
 	fmt.Println("Config loaded successfully ✅")
 
 	// database setup
-
+	storage, err := sqlite.New(config)
+	if err != nil {
+		log.Fatalf("failed to create storage: %v", err)
+	}
+	fmt.Println("Storage created successfully ✅")
+	
 	// server setup
 	router := http.NewServeMux()
 	
-	router.Handle("POST /api/v1/student", student.New())
+	router.Handle("POST /api/v1/student", student.New(storage))
 
 	server := &http.Server{
 		Addr:    config.HttpServer.Address,

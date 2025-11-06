@@ -6,11 +6,12 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/hereisSwapnil/golang-crud/internal/storage"
 	"github.com/hereisSwapnil/golang-crud/internal/types"
 	response "github.com/hereisSwapnil/golang-crud/internal/utils"
 )
 
-func New() http.HandlerFunc {
+func New(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		
 		var student types.Student
@@ -25,7 +26,15 @@ func New() http.HandlerFunc {
 			return
 		}
 
-		fmt.Println("Student created successfully", student)
-		response.SendResponse(w, http.StatusOK, student)
+		id, err := storage.CreateStudent(student.Name, student.Age, student.Email)
+		if err != nil {
+			response.SendError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to create student: %v", err))
+			return
+		}
+
+		fmt.Println("Student created successfully", id)
+		response.SendResponse(w, http.StatusOK, map[string]interface{}{
+			"id": id,
+		})
 	}
 }
