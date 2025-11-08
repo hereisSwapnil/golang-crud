@@ -238,28 +238,3 @@ http_server:
    ```
 
 3. The server will start on `localhost:8082` (or the address in your config).
-
-## Database
-
-The SQLite database is created automatically at the path specified in `config/local.yaml`. The students table has the following structure:
-
-- `id` - INTEGER PRIMARY KEY AUTOINCREMENT
-- `name` - TEXT NOT NULL
-- `age` - INTEGER NOT NULL
-- `email` - TEXT NOT NULL
-
-## Validation
-
-The API validates:
-- All fields (`name`, `age`, `email`) are required
-- Email must be a valid email format
-
-Invalid requests return validation error responses with specific field errors.
-
-## Error Handling
-
-- **400 Bad Request**: Invalid request body or validation errors
-- **500 Internal Server Error**: Database errors or other server issues
-
-All errors are returned in JSON format with a status code and message.
-
